@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    minLength: 5,
+    minlength: [5, "Password must be at least 5 characters long."],
   },
   role: {
     type: Number,
@@ -23,4 +23,4 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", userSchema);
 
-module.exports = { User };
+module.exports = User;
