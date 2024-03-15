@@ -4,13 +4,14 @@ import { useSetRecoilState } from "recoil";
 
 import useRegister from "@/hooks/useRegister";
 import { registerFormState } from "@/store";
+
 type FormData = {
   email: string;
   password: string;
   passwordAgain: string;
   image: string;
 };
-const LoginPage = () => {
+const RegisterPage = () => {
   const setRegisterForm = useSetRecoilState(registerFormState);
   const {
     register: formRegister,
@@ -125,4 +126,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

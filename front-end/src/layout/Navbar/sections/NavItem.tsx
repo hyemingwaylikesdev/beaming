@@ -1,6 +1,10 @@
 import { AiOutlineShoppingCart } from "react-icons/ai";
 // import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+
+import useLogout from "@/hooks/useLogout";
+import { userState } from "@/store";
 
 // import { logoutUser } from "../../../store/thunkFunctions";
 
@@ -20,20 +24,22 @@ const routes = [
 ];
 
 const NavItem = () => {
-  // const isAuth = useSelector((state) => state.user?.isAuth);
+  const navigate = useNavigate();
+
   // const cart = useSelector((state) => state.user?.userData?.cart);
 
   // const dispatch = useDispatch();
   // const navigate = useNavigate();
 
-  // const handleLogout = () => {
-  //   dispatch(logoutUser()).then(() => {
-  //     navigate("/login");
-  //   });
-  // };
-
+  const user = useRecoilValue(userState);
   const mobile = false;
-  const isAuth = true;
+  const isAuth = user.isAuth;
+
+  const { logout } = useLogout();
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <ul
@@ -47,7 +53,7 @@ const NavItem = () => {
         if (name === "로그아웃") {
           return (
             <li key={name} className="py-2 text-center cursor-pointer text-purple-500">
-              <button>{name}</button>
+              <button onClick={handleLogout}>{name}</button>
             </li>
           );
         } else if (icon) {

@@ -1,21 +1,63 @@
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
+import useLogin from "@/hooks/userLogin";
+
+type FormData = {
+  email: string;
+  password: string;
+};
+
 const LoginPage = () => {
   const navigate = useNavigate();
+  const {
+    register: formRegister,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({ mode: "onChange" });
+
+  const { login } = useLogin();
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      const response = await login(data);
+
+      localStorage.setItem("accessToken", response.accessToken);
+      toast.info("Login Success!");
+      navigate("/"); // 로그인이 성공 -> 메인으로 이동
+    } catch (error) {
+      console.error(error);
+      toast.error("Login Failed!");
+    }
+  };
+
+  const userEmail = {
+    required: "Email is required",
+  };
+  const userPassword = {
+    required: "Password is required",
+  };
+
   return (
     <div className="relative flex flex-col justify-center overflow-hidden">
       <div className="w-full p-6 m-auto bg-white rounded-md shadow-xl lg:max-w-xl">
         <h1 className="text-3xl font-semibold text-center text-purple-500 uppercase">
           WELCOME
         </h1>
-        <form className="mt-6">
+        <form className="mt-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-2">
             <label htmlFor="email" className="block text-sm font-semibold text-gray-800">
               Email
             </label>
             <input
+              {...formRegister("email", userEmail)}
               type="email"
               className="block w-full px-4 py-2 mt-2 text-purple-500 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
             />
+            {errors.email && (
+              <p className="text-red-500 text-xs italic">{errors.email.message}</p>
+            )}
           </div>
           <div className="mb-2">
             <label
@@ -25,9 +67,13 @@ const LoginPage = () => {
               Password
             </label>
             <input
+              {...formRegister("password", userPassword)}
               type="password"
               className="block w-full px-4 py-2 mt-2 text-purple-500 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
             />
+            {errors.password && (
+              <p className="text-red-500 text-xs italic">{errors.password.message}</p>
+            )}
           </div>
           <button className="text-xs text-purple-400 hover:underline">
             Forget Password?

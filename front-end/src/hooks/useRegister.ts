@@ -16,15 +16,6 @@ const useRegister = () => {
     setLoading(true);
     setError(null);
 
-    // try {
-    //   const response = await axiosInstance.post("/users/register", data);
-    //   setLoading(false);
-    //   return response.data;
-    // } catch (error) {
-    //   setLoading(false);
-    //   setError(error as Error);
-    // }
-
     const response = await axiosInstance.post("/users/register", data);
     if (response.status !== 201) {
       throw new Error("Register failed");
