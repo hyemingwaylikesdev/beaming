@@ -1,10 +1,14 @@
 import { useState } from "react";
+import { useSetRecoilState } from "recoil";
 
+import { userAuthData } from "@/store";
 import axiosInstance from "@/util/axios";
 
 const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+
+  const setUserAuthData = useSetRecoilState(userAuthData);
 
   const authUser = async () => {
     try {
@@ -16,6 +20,8 @@ const useAuth = () => {
         throw new Error("Register failed");
       }
       setLoading(false);
+      console.log("userAuthData", response.data);
+      setUserAuthData(response.data);
       return response.data;
     } catch (e) {
       setError(e instanceof Error ? e : new Error("An error occurred"));

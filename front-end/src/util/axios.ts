@@ -21,7 +21,6 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   function (error) {
-    console.log("???", error.response.data);
     if (error.response.data.includes("jwt expired")) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("recoil-persist");
