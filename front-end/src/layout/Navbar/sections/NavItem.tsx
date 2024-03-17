@@ -1,12 +1,9 @@
 import { AiOutlineShoppingCart } from "react-icons/ai";
-// import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 
 import useLogout from "@/hooks/useLogout";
-import { userState } from "@/store";
-
-// import { logoutUser } from "../../../store/thunkFunctions";
+import { userInfoState } from "@/store";
 
 const routes = [
   { to: "/login", name: "로그인", auth: false },
@@ -25,13 +22,7 @@ const routes = [
 
 const NavItem = () => {
   const navigate = useNavigate();
-
-  // const cart = useSelector((state) => state.user?.userData?.cart);
-
-  // const dispatch = useDispatch();
-  // const navigate = useNavigate();
-
-  const user = useRecoilValue(userState);
+  const user = useRecoilValue(userInfoState);
   const mobile = false;
   const isAuth = user.isAuth;
 

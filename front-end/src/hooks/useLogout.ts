@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useSetRecoilState } from "recoil";
 
-import { userState } from "@/store";
+import { userInfoState, userState } from "@/store";
 import axiosInstance from "@/util/axios";
 
 const useLoout = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const setUser = useSetRecoilState(userState);
+  const setUserInfo = useSetRecoilState(userInfoState);
 
   const logout = async () => {
     setLoading(true);
@@ -17,7 +18,8 @@ const useLoout = () => {
     if (response.status !== 200) {
       throw new Error("Logout failed");
     }
-    setUser({ email: "", password: "", isAuth: false });
+    setUser({ email: "", password: "" });
+    setUserInfo({ isAuth: false });
     localStorage.removeItem("accessToken");
     setLoading(false);
     return response.data;

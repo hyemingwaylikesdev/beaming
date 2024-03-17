@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSetRecoilState } from "recoil";
 
-import { userState } from "@/store";
+import { userInfoState, userState } from "@/store";
 import axiosInstance from "@/util/axios";
 type FormData = {
   email: string;
@@ -12,6 +12,7 @@ const useLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const setUser = useSetRecoilState(userState);
+  const setUserInfo = useSetRecoilState(userInfoState);
 
   const login = async (data: FormData) => {
     setLoading(true);
@@ -21,7 +22,8 @@ const useLogin = () => {
     if (response.status !== 200) {
       throw new Error("Login failed");
     }
-    setUser({ email: data.email, password: data.password, isAuth: true });
+    setUser({ email: data.email, password: data.password });
+    setUserInfo({ isAuth: true });
     setLoading(false);
     return response.data;
   };

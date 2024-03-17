@@ -34,13 +34,13 @@ const RegisterPage = () => {
     setRegisterForm(body);
 
     try {
-      const response = await register(body); // useRegister 훅에서 반환된 register 함수를 사용합니다.
-      console.log(response); // 등록 요청의 응답을 콘솔에 출력합니다.
-      toast.info("Register Success!"); // 등록 요청이 성공하면 토스트 메시지를 출력합니다.
+      const response = await register(body);
+      console.log(response);
+      toast.info("Register Success!");
       reset();
     } catch (error) {
-      console.error(error); // 등록 요청이 실패하면 에러를 콘솔에 출력합니다.
-      toast.error("Register Failed!"); // 등록 요청이 실패하면 토스트 메시지를 출력합니다.
+      console.error(error);
+      toast.error("Register Failed!");
     }
   };
 
