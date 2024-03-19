@@ -4,25 +4,10 @@ import { useRecoilValue } from "recoil";
 
 import ContentsEditor from "@/components/ContentsEditor";
 import FileUpload from "@/components/FileUpload";
+import { ProductsProps } from "@/hooks/useUpload";
 import { userAuthData } from "@/store";
 import axiosInstance from "@/util/axios";
-
-const category = [
-  { key: 1, value: "top" },
-  { key: 2, value: "jeans" },
-  { key: 3, value: "dress" },
-  { key: 4, value: "shoes" },
-  { key: 5, value: "accessories" },
-  { key: 6, value: "hats" },
-];
-
-type FormData = {
-  title: string;
-  description: string;
-  price: number;
-  category: number;
-  images: string[];
-};
+import { category } from "@/util/filterData";
 
 const UploadProductPage = () => {
   const {
@@ -31,11 +16,11 @@ const UploadProductPage = () => {
     formState: { errors },
     setValue,
     watch,
-  } = useForm<FormData>({ mode: "onChange" });
+  } = useForm<ProductsProps>({ mode: "onChange" });
   const userData = useRecoilValue(userAuthData);
   const navigate = useNavigate();
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: ProductsProps) => {
     console.log(data);
     try {
       await axiosInstance.post("/products", { writer: userData.id, ...data });
@@ -88,8 +73,8 @@ const UploadProductPage = () => {
             {...register("category", { required: true })}
           >
             {category.map((item) => (
-              <option key={item.key} value={item.key}>
-                {item.value}
+              <option key={item._id} value={item._id}>
+                {item.name}
               </option>
             ))}
           </select>

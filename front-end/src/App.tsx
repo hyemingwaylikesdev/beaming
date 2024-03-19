@@ -3,6 +3,7 @@ import "./index.css";
 import "react-toastify/dist/ReactToastify.css";
 
 import { useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { Outlet, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { useRecoilValue } from "recoil";
@@ -51,27 +52,29 @@ function App() {
       authUser();
     }
   }, [user]);
-
+  const queryClient = new QueryClient();
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<LandingPage />}></Route>
+    <QueryClientProvider client={queryClient}>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<LandingPage />}></Route>
 
-        {/* 로그인한 사람만 갈 수 있는 경로 */}
-        <Route element={<ProtectedRoutes isAuth={user.isAuth} />}>
-          <Route path="/product/upload" element={<UploadProductPage />} />
-          <Route path="/product/:productId" element={<DetailProductPage />} />
-          <Route path="/user/cart" element={<CartPage />} />
-          <Route path="/history" element={<HistoryPage />} />
+          {/* 로그인한 사람만 갈 수 있는 경로 */}
+          <Route element={<ProtectedRoutes isAuth={user.isAuth} />}>
+            <Route path="/product/upload" element={<UploadProductPage />} />
+            <Route path="/product/:productId" element={<DetailProductPage />} />
+            <Route path="/user/cart" element={<CartPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+          </Route>
+          {/* 로그인한 사람은 갈 수 없는 경로 */}
+          <Route element={<NotAuthRoutes isAuth={user.isAuth} />}>
+            <Route path="/login" element={<LoginPage />}></Route>
+            <Route path="/register" element={<RegisterPage />}></Route>
+          </Route>
+          <Route path="/products/:productid" element={<ProductDetail />} />
         </Route>
-        {/* 로그인한 사람은 갈 수 없는 경로 */}
-        <Route element={<NotAuthRoutes isAuth={user.isAuth} />}>
-          <Route path="/login" element={<LoginPage />}></Route>
-          <Route path="/register" element={<RegisterPage />}></Route>
-        </Route>
-        <Route path="/products/:productid" element={<ProductDetail />} />
-      </Route>
-    </Routes>
+      </Routes>
+    </QueryClientProvider>
   );
 }
 

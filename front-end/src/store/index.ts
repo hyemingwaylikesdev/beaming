@@ -38,3 +38,8 @@ export const userAuthData = atom({
     image: "",
   },
 });
+
+export const inputState = atom({
+  key: "inputState",
+  default: "",
+});

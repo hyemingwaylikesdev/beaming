@@ -15,15 +15,65 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage }).single("file");
 
+/**
+ * @swagger
+ * /products/image:
+ *   post:
+ *     summary: Upload an image
+ *     description: Uploads an image file
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       '200':
+ *         description: Image uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 fileName:
+ *                   type: string
+ *                   description: Name of the uploaded file
+ */
 router.post("/image", auth, async (req, res, next) => {
   upload(req, res, (err) => {
     if (err) {
-      return req.status(500).send(err);
+      return res.status(500).send(err);
     }
     return res.json({ fileName: res.req.file.filename });
   });
 });
 
+/**
+ * @swagger
+ * /products/{id}:
+ *   get:
+ *     summary: Get product details by ID
+ *     description: Retrieve product details by its ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the product to retrieve
+ *     responses:
+ *       '200':
+ *         description: Product details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Product'
+ */
 router.get("/:id", async (req, res, next) => {
   const type = req.query.type;
   let productIds = req.params.id;
@@ -50,6 +100,51 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
+/**
+ * @swagger
+ * /products:
+ *   get:
+ *     summary: Get products
+ *     description: Retrieve a list of products based on search criteria
+ *     parameters:
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *         description: Sort order ('asc' or 'desc')
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *         description: Field to sort by
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Maximum number of products to return
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *         description: Number of products to skip
+ *       - in: query
+ *         name: searchTerm
+ *         schema:
+ *           type: string
+ *         description: Search term for filtering products
+ *       - in: query
+ *         name: filters
+ *         schema:
+ *           type: object
+ *         description: Filters for querying products
+ *     responses:
+ *       '200':
+ *         description: List of products retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Product'
+ */
 router.get("/", async (req, res, next) => {
   // asc 오름차순  , desc 내림차순
   const order = req.query.order ? req.query.order : "desc";
@@ -99,6 +194,22 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+/**
+ * @swagger
+ * /products:
+ *   post:
+ *     summary: Create a new product
+ *     description: Create a new product entry
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Product'
+ *     responses:
+ *       '201':
+ *         description: Product created successfully
+ */
 router.post("/", auth, async (req, res, next) => {
   try {
     const product = new Product(req.body);

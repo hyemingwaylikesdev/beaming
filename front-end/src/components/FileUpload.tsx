@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import imageCompression from "browser-image-compression";
 import { DropzoneOptions, useDropzone } from "react-dropzone";
 
 import axiosInstance from "../util/axios";
@@ -9,21 +9,26 @@ type FileUploadProps = {
 };
 
 const FileUpload = ({ onImageChange, images }: FileUploadProps) => {
-  useEffect(() => {
-    console.log(images);
-  }, [images]);
   const handleDrop = async (acceptedFiles: File[]) => {
-    const formData = new FormData();
-    formData.append("file", acceptedFiles[0]);
+    const imageFile = acceptedFiles[0];
+
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1080,
+      useWebWorker: true,
+    };
 
     try {
+      const compressedFile = await imageCompression(imageFile, options);
+      const formData = new FormData();
+      formData.append("file", compressedFile);
+
       const response = await axiosInstance.post("/products/image", formData);
       onImageChange([...images, response.data.fileName]);
     } catch (error) {
       console.error(error);
     }
   };
-
   const handleDelete = (image: string) => {
     const newImages = images.filter((img) => img !== image);
     onImageChange(newImages);
@@ -47,7 +52,6 @@ const FileUpload = ({ onImageChange, images }: FileUploadProps) => {
 
       <div className="flex-grow h-[300px] border flex items-center justify-center overflow-x-scroll overflow-y-hidden">
         {images.map((image) => {
-          console.log(`${import.meta.env.VITE_SERVER_URL}/${image}`); // Add this line
           return (
             <div key={image} onClick={() => handleDelete(image)}>
               <img
