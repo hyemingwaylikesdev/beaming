@@ -13,11 +13,15 @@ const Product = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const limit = 8;
-  const [skip, setSkip] = useState(0);
+
   const [filters, setFilters] = useState<Filters>({ category: [], price: [] });
   const [isFilters, setIsFilters] = useState(false);
 
-  const { produceList, isLoading } = useProduceList({ skip, limit, filters, searchTerm });
+  const { produceList, isLoading, hasMore, handleLoadMore } = useProduceList({
+    limit,
+    filters,
+    searchTerm,
+  });
 
   const performSearch = () => {
     setSearchTerm(inputValue);
@@ -44,7 +48,7 @@ const Product = () => {
       newFilters[category] = newFilteredData;
     }
 
-    setFilters(newFilters);
+    setFilters({ ...filters, ...newFilters }); // 이 부분 수정
   };
 
   return (
@@ -101,17 +105,17 @@ const Product = () => {
         <div>Loading...</div>
       ) : (
         <div>
-          {produceList?.products.length !== 0 ? (
+          {produceList ? (
             <div className="w-full p-4 flex flex-wrap">
-              {produceList?.products.map((product, index) => (
+              {produceList.map((product, index) => (
                 <div key={index} className="w-full sm:w-1/2 lg:w-1/4 p-1">
                   <ProductCard product={product} />
                 </div>
               ))}
-              {produceList?.hasMore && (
+              {hasMore && (
                 <button
                   className="px-4 py-2 mt-5 text-white bg-black rounded-md hover:bg-gray-500"
-                  onClick={() => setSkip((oldSkip) => oldSkip + limit)}
+                  onClick={handleLoadMore}
                 >
                   더보기
                 </button>

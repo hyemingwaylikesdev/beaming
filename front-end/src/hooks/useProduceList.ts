@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useQuery } from "react-query";
 
 import axiosInstance from "@/util/axios";
+
 interface Writer {
   _id: string;
   email: string;
@@ -29,7 +31,6 @@ interface ProduceResponse {
 }
 
 interface UseProduceListParams {
-  skip: number;
   limit: number;
   filters: {
     category: string[];
@@ -38,25 +39,60 @@ interface UseProduceListParams {
   searchTerm: string;
 }
 
-export const useProduceList = ({
-  skip,
-  limit,
-  filters,
-  searchTerm,
-}: UseProduceListParams) => {
-  const { data: produceList, isLoading } = useQuery<ProduceResponse>(
-    ["produceList", searchTerm, filters],
+export const useProduceList = ({ limit, filters, searchTerm }: UseProduceListParams) => {
+  const [skip, setSkip] = useState<number>(0);
+  const [produceList, setProduceList] = useState<ProduceList[]>([]);
+
+  const handleLoadMore = () => {
+    setSkip((prevSkip) => prevSkip + limit);
+  };
+
+  const { isLoading } = useQuery<ProduceResponse>(
+    ["produceList", searchTerm, filters, skip],
     async () => {
+      interface Params {
+        skip?: number;
+        limit?: number;
+        filters?: { category: string[]; price: number[] };
+        searchTerm?: string;
+      }
+
+      const params: Params = {};
+
+      if (skip !== 0) {
+        params.skip = skip;
+      }
+
+      if (limit !== undefined) {
+        params.limit = limit;
+      }
+
+      if (filters !== undefined && Object.keys(filters).length > 0) {
+        params.filters = filters;
+      }
+
+      if (searchTerm !== undefined && searchTerm !== "") {
+        params.searchTerm = searchTerm;
+      }
+
       const response = await axiosInstance.get("/products", {
-        params: { skip, limit, filters, searchTerm },
+        params: params,
       });
+
       return response.data;
+    },
+    {
+      staleTime: Infinity,
+      onSuccess: (data) => {
+        setProduceList(data.products);
+      },
     },
   );
 
   return {
     produceList,
-    hasMore: produceList?.hasMore,
+    hasMore: produceList.length > 0 && produceList.length % limit === 0,
     isLoading,
+    handleLoadMore,
   };
 };

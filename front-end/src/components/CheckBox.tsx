@@ -1,7 +1,13 @@
-import React from "react";
-
-const CheckBox = ({ category, checkedCategory, onFilters }) => {
-  const handleToggle = (continentId) => {
+const CheckBox = ({
+  category,
+  checkedCategory,
+  onFilters,
+}: {
+  category: { _id: number; name: string }[];
+  checkedCategory: string[];
+  onFilters: (newChecked: string[]) => void;
+}) => {
+  const handleToggle = (continentId: string) => {
     const currentIndex = checkedCategory.indexOf(continentId);
 
     const newChecked = [...checkedCategory];
@@ -20,8 +26,10 @@ const CheckBox = ({ category, checkedCategory, onFilters }) => {
           <input
             type="checkbox"
             className="mr-2"
-            onChange={() => handleToggle(category._id)}
-            checked={checkedCategory.indexOf(category._id) === -1 ? false : true}
+            onChange={() => handleToggle(category._id.toString())}
+            checked={
+              checkedCategory.indexOf(category._id.toString()) === -1 ? false : true
+            }
           />
           <label>{category.name}</label>
         </div>
