@@ -55,13 +55,12 @@ const LandingPage: React.FC = () => {
       filters,
       searchTerm,
     };
-
     const response = await axiosInstance.get("/products", { params });
     return response.data;
   };
 
   const { data, isLoading, fetchNextPage } = useInfiniteQuery<ProductResponse>({
-    queryKey: ["products"],
+    queryKey: ["products", filters, searchTerm],
     queryFn: async ({ pageParam = 0 }) => {
       const response = await fetchProducts({
         skip: pageParam as number,
@@ -73,33 +72,59 @@ const LandingPage: React.FC = () => {
     getNextPageParam: (lastPage: ProductResponse) =>
       lastPage.hasMore ? lastPage.products.length : undefined,
     initialPageParam: 0,
+    staleTime: Infinity,
   });
 
-  const handleFilters = (newFilteredData: string | string[], category: string) => {
-    const newFilters = {
-      ...filters,
-      [category]: Array.isArray(newFilteredData)
-        ? newFilteredData.flat()
-        : [newFilteredData],
-    };
+  type FilterCategory = "category" | "price";
+
+  const handleFilters = (
+    newFilteredData: string[] | number[],
+    category: FilterCategory,
+  ) => {
+    const newFilters = { ...filters };
     if (category === "price") {
-      const priceValues = Array.isArray(newFilteredData)
-        ? newFilteredData.map(handlePrice).flat()
-        : [handlePrice(newFilteredData)];
-      console.log("priceValues", priceValues);
+      const value = parseInt(newFilteredData[0] as string);
+      const foundPrice = prices.find((price) => price._id === value);
+      if (foundPrice && foundPrice.array.length !== 0) {
+        const priceRange = foundPrice.array;
+        newFilters[category] = [priceRange[0].toString(), priceRange[1].toString()];
+      } else {
+        newFilters[category] = [];
+      }
+    } else if (Array.isArray(newFilteredData) && typeof newFilteredData[0] === "number") {
+      newFilters[category] = newFilteredData.map(String);
+    } else {
+      newFilters[category] = newFilteredData as string[];
     }
-    setFilters(newFilters);
+
+    setFilters({ ...filters, ...newFilters }); // 이 부분 수정
   };
 
-  const handlePrice = (value: string): string[] => {
-    let array: string[] = [];
-    for (const key in prices) {
-      if (prices[key]._id === parseInt(value, 10)) {
-        array = prices[key].array.map(String);
-      }
-    }
-    return array;
-  };
+  // const handleFilters = (newFilteredData: string | string[], category: string) => {
+  //   const newFilters = {
+  //     ...filters,
+  //     [category]: Array.isArray(newFilteredData)
+  //       ? newFilteredData.flat()
+  //       : [newFilteredData],
+  //   };
+  //   if (category === "price") {
+  //     const priceValues = Array.isArray(newFilteredData)
+  //       ? newFilteredData.map(handlePrice).flat()
+  //       : [handlePrice(newFilteredData)];
+  //     console.log("priceValues", priceValues);
+  //   }
+  //   setFilters(newFilters);
+  // };
+
+  // const handlePrice = (value: string): string[] => {
+  //   let array: string[] = [];
+  //   for (const key in prices) {
+  //     if (prices[key]._id === parseInt(value, 10)) {
+  //       array = prices[key].array.map(String);
+  //     }
+  //   }
+  //   return array;
+  // };
 
   const handleSearchTerm = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
