@@ -1,98 +1,41 @@
-import { useState } from "react";
-import { useQuery } from "react-query";
+import { useInfiniteQuery } from "react-query";
 
-import axiosInstance from "@/util/axios";
+import { fetchProducts, ProductResponse } from "@/util/api";
 
-interface Writer {
-  _id: string;
-  email: string;
-  password: string;
-  role: number;
-  image: string;
-  __v: number;
-}
-
-interface ProduceList {
-  _id: string;
-  writer: Writer;
-  title: string;
-  description: string;
-  price: number;
-  images: Array<string>;
-  sold: number;
-  category: number;
-  views: number;
-  __v: number;
-}
-
-interface ProduceResponse {
-  products: ProduceList[];
-  hasMore: boolean;
-}
-
-interface UseProduceListParams {
+export const useProduceList = ({
+  filters,
+  limit,
+  searchTerm,
+}: {
+  filters: { category: string[]; price: number[] };
   limit: number;
-  filters: {
-    category: string[];
-    price: number[];
-  };
   searchTerm: string;
-}
-
-export const useProduceList = ({ limit, filters, searchTerm }: UseProduceListParams) => {
-  const [skip, setSkip] = useState<number>(0);
-  const [produceList, setProduceList] = useState<ProduceList[]>([]);
-
-  const handleLoadMore = () => {
-    setSkip((prevSkip) => prevSkip + limit);
-  };
-
-  const { isLoading } = useQuery<ProduceResponse>(
-    ["produceList", searchTerm, filters, skip],
-    async () => {
-      interface Params {
-        skip?: number;
-        limit?: number;
-        filters?: { category: string[]; price: number[] };
-        searchTerm?: string;
-      }
-
-      const params: Params = {};
-
-      if (skip !== 0) {
-        params.skip = skip;
-      }
-
-      if (limit !== undefined) {
-        params.limit = limit;
-      }
-
-      if (filters !== undefined && Object.keys(filters).length > 0) {
-        params.filters = filters;
-      }
-
-      if (searchTerm !== undefined && searchTerm !== "") {
-        params.searchTerm = searchTerm;
-      }
-
-      const response = await axiosInstance.get("/products", {
-        params: params,
+}) => {
+  const { data, isLoading, fetchNextPage } = useInfiniteQuery<
+    ProductResponse,
+    Error,
+    ProductResponse
+  >(
+    ["products", filters, searchTerm],
+    async ({ pageParam = 0 }) => {
+      const response = await fetchProducts({
+        skip: pageParam as number,
+        limit,
+        filters,
+        searchTerm,
       });
-
-      return response.data;
+      return response;
     },
     {
+      getNextPageParam: (lastPage) =>
+        lastPage.hasMore ? lastPage.products.length : undefined,
       staleTime: Infinity,
-      onSuccess: (data) => {
-        setProduceList(data.products);
-      },
     },
   );
 
   return {
-    produceList,
-    hasMore: produceList.length > 0 && produceList.length % limit === 0,
+    data,
     isLoading,
-    handleLoadMore,
+    fetchNextPage,
   };
 };

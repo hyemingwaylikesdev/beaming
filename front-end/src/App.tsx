@@ -2,8 +2,8 @@ import "./App.css";
 import "./index.css";
 import "react-toastify/dist/ReactToastify.css";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { Outlet, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { useRecoilValue } from "recoil";
@@ -52,7 +52,9 @@ function App() {
       authUser();
     }
   }, [user]);
+
   const queryClient = new QueryClient();
+
   return (
     <QueryClientProvider client={queryClient}>
       <Routes>

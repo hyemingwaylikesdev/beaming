@@ -5,6 +5,7 @@ import { useRecoilState } from "recoil";
 import CheckBox from "@/components/CheckBox";
 import ProductCard from "@/components/ProductCard";
 import RadioBox from "@/components/RadioBox";
+import SearchInput from "@/components/SearchInput";
 import { useProduceList } from "@/hooks/useProduceList";
 import { inputState } from "@/store";
 import { category, prices } from "@/util/filterData";
@@ -17,7 +18,7 @@ const Product = () => {
   const [filters, setFilters] = useState<Filters>({ category: [], price: [] });
   const [isFilters, setIsFilters] = useState(false);
 
-  const { produceList, isLoading, hasMore, handleLoadMore } = useProduceList({
+  const { data, isLoading, fetchNextPage } = useProduceList({
     limit,
     filters,
     searchTerm,
@@ -28,12 +29,16 @@ const Product = () => {
   };
 
   type Filters = {
-    [key: string]: string[] | number[];
     category: string[];
     price: number[];
   };
 
-  const handleFilters = (newFilteredData: string[] | number[], category: string) => {
+  type FilterCategory = "category" | "price";
+
+  const handleFilters = (
+    newFilteredData: string[] | number[],
+    category: FilterCategory,
+  ) => {
     const newFilters = { ...filters };
     if (category === "price") {
       const value = parseInt(newFilteredData[0] as string);
@@ -44,11 +49,13 @@ const Product = () => {
       } else {
         newFilters[category] = [];
       }
+    } else if (Array.isArray(newFilteredData) && typeof newFilteredData[0] === "number") {
+      newFilters[category] = newFilteredData.map(String);
     } else {
-      newFilters[category] = newFilteredData;
+      newFilters[category] = newFilteredData as string[];
     }
 
-    setFilters({ ...filters, ...newFilters }); // 이 부분 수정
+    setFilters({ ...filters, ...newFilters });
   };
 
   return (
@@ -65,19 +72,11 @@ const Product = () => {
               필터
               {isFilters ? <FaChevronUp /> : <FaChevronDown />}
             </button>
-            <input
-              type="text"
-              placeholder="검색어를 입력해주세요"
-              className="flex-grow p-2 border border-gray-300 rounded-l-lg focus:border-gray-300 focus:ring-0"
-              onChange={(e) => setInputValue(e.target.value)}
-              value={inputValue}
+            <SearchInput
+              inputValue={inputValue}
+              setInputValue={setInputValue}
+              performSearch={performSearch}
             />
-            <button
-              className="bg-purple-500 text-white px-4 py-2 rounded-r-lg hover:bg-purple-600 "
-              onClick={() => performSearch()}
-            >
-              검색
-            </button>
           </div>
         </div>
         {isFilters && (
@@ -105,17 +104,21 @@ const Product = () => {
         <div>Loading...</div>
       ) : (
         <div>
-          {produceList ? (
+          {data ? (
             <div className="w-full p-4 flex flex-wrap">
-              {produceList.map((product, index) => (
-                <div key={index} className="w-full sm:w-1/2 lg:w-1/4 p-1">
-                  <ProductCard product={product} />
-                </div>
-              ))}
-              {hasMore && (
+              {data &&
+                data.pages.map((page) =>
+                  page.products.map((product, index) => (
+                    <div key={index} className="w-full sm:w-1/2 lg:w-1/4 p-1">
+                      <ProductCard product={product} />
+                    </div>
+                  )),
+                )}
+
+              {data && data.pages[data.pages.length - 1].hasMore && (
                 <button
                   className="px-4 py-2 mt-5 text-white bg-black rounded-md hover:bg-gray-500"
-                  onClick={handleLoadMore}
+                  onClick={() => fetchNextPage()}
                 >
                   더보기
                 </button>
