@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { fetchProducts, ProductResponse } from "@/util/api";
 
@@ -11,27 +11,21 @@ export const useProduceList = ({
   limit: number;
   searchTerm: string;
 }) => {
-  const { data, isLoading, fetchNextPage } = useInfiniteQuery<
-    ProductResponse,
-    Error,
-    ProductResponse
-  >(
-    ["products", filters, searchTerm],
-    async ({ pageParam = 0 }) => {
-      const response = await fetchProducts({
+  const { data, isLoading, fetchNextPage } = useInfiniteQuery<ProductResponse, Error>({
+    queryKey: ["products", filters, searchTerm],
+    queryFn: ({ pageParam = 0 }) =>
+      fetchProducts({
         skip: pageParam as number,
         limit,
         filters,
         searchTerm,
-      });
-      return response;
-    },
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.hasMore ? lastPage.products.length : undefined,
-      staleTime: Infinity,
-    },
-  );
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.hasMore ? allPages.length * limit : undefined,
+    staleTime: Infinity,
+    gcTime: 300 * 1000,
+  });
 
   return {
     data,

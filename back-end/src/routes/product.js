@@ -93,6 +93,7 @@ router.get("/:id", async (req, res, next) => {
     const product = await Product.find({ _id: { $in: productIds } }).populate(
       "writer"
     );
+    console.log(product);
 
     return res.status(200).send(product);
   } catch (error) {

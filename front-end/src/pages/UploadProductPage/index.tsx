@@ -81,10 +81,7 @@ const UploadProductPage = () => {
         </div>
         <div className="mt-4">
           <label htmlFor="editor">상세 설명</label>
-          <ContentsEditor
-            fieldName="description"
-            onChange={(data) => setValue("description", data)}
-          />
+          <ContentsEditor onChange={(data) => setValue("description", data)} />
         </div>
         <div className="mt-4">
           <button

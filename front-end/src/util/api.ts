@@ -27,17 +27,29 @@ export interface ProductResponse {
   hasMore: boolean;
 }
 
+export interface ProductDetailResponse {
+  images: string[];
+  _id: string;
+  writer: Writer;
+  title: string;
+  description: string;
+  price: number;
+  category: number;
+  views: number;
+  sold: number;
+}
+
 export const fetchProducts = async ({
   skip,
   limit,
-  filters = { category: [], price: [] },
-  searchTerm = "",
+  filters,
+  searchTerm,
 }: {
   skip: number;
   limit: number;
   filters: { category: string[]; price: number[] };
   searchTerm: string;
-}): Promise<ProductResponse> => {
+}) => {
   const params = {
     skip,
     limit,
@@ -46,4 +58,9 @@ export const fetchProducts = async ({
   };
   const response = await axiosInstance.get("/products", { params });
   return response.data;
+};
+
+export const fetchProductDetail = async (id: string) => {
+  const response = await axiosInstance.get(`/products/${id}`);
+  return response.data[0];
 };

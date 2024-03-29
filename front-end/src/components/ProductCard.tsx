@@ -1,4 +1,5 @@
 import ImageSlider from "@/components/ImageSlider";
+import { category } from "@/util/filterData";
 
 interface Writer {
   _id: string;
@@ -23,6 +24,8 @@ interface ProduceList {
 }
 
 const ProductCard = ({ product }: { product: ProduceList }) => {
+  const categoryItem = category.find((item) => item._id === product?.category);
+
   return (
     <div className="flex flex-col bg-white rounded-lg shadow-md overflow-hidden mb-4 mt-4">
       <a href={`/products/${product._id}`} title={product.title}>
@@ -34,7 +37,7 @@ const ProductCard = ({ product }: { product: ProduceList }) => {
         <div className="p-4 flex-1 flex flex-col justify-between">
           <div>
             <h3 className="text-lg font-semibold">{product.title}</h3>
-            <p className="text-gray-500">{product.category}</p>
+            <p className="text-gray-500">{categoryItem?.name}</p>
           </div>
           <div className="mt-2">
             <span className="text-lg font-bold">{product.price}</span>
