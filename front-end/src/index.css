@@ -9,3 +9,51 @@
 input:focus {
   outline: none;
 }
+
+.slider-container {
+  width: 100%;
+  height: 100%;
+
+  /* Add this */
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+/* ! ck-editor view 에서 이미지 정렬 문제 해결 */
+
+.image-style-side {
+  float: right;
+  margin-left: var(--ck-image-style-spacing);
+}
+figure.image {
+  margin: 0.9em auto;
+  text-align: center;
+}
+.image.image_resized {
+  display: block;
+  box-sizing: border-box;
+}
+.image.image_resized img {
+  width: 100%;
+}
+
+.text-huge {
+  font-size: 2.5rem;
+}
+
+.text-big {
+  font-size: 1.5rem;
+}
+
+.text-default {
+  font-size: 1rem;
+}
+
+.text-small {
+  font-size: 0.8rem;
+}
+
+.text-tiny {
+  font-size: 0.5rem;
+}
