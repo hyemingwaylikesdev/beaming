@@ -2,6 +2,7 @@ import "./App.css";
 import "./index.css";
 import "react-toastify/dist/ReactToastify.css";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Outlet, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -10,14 +11,12 @@ import { useRecoilValue } from "recoil";
 import NotAuthRoutes from "./components/NotAuthRoutes";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import useAuth from "./hooks/useAuth";
-import Footer from "./layout/Footer";
 import Navbar from "./layout/Navbar";
 import CartPage from "./pages/CartPage";
 import DetailProductPage from "./pages/DetailProductPage";
 import HistoryPage from "./pages/HistoryPage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
-import ProductDetail from "./pages/ProductPage";
 import RegisterPage from "./pages/RegisterPage";
 import UploadProductPage from "./pages/UploadProductPage";
 import { userInfoState } from "./store";
@@ -37,7 +36,6 @@ function App() {
           autoClose={1500}
           style={{ height: "200px" }}
         />
-        <Footer />
       </div>
     );
   }
@@ -52,26 +50,29 @@ function App() {
     }
   }, [user]);
 
-  return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<LandingPage />}></Route>
+  const queryClient = new QueryClient();
 
-        {/* 로그인한 사람만 갈 수 있는 경로 */}
-        <Route element={<ProtectedRoutes isAuth={user.isAuth} />}>
-          <Route path="/product/upload" element={<UploadProductPage />} />
-          <Route path="/product/:productId" element={<DetailProductPage />} />
-          <Route path="/user/cart" element={<CartPage />} />
-          <Route path="/history" element={<HistoryPage />} />
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<LandingPage />}></Route>
+
+          {/* 로그인한 사람만 갈 수 있는 경로 */}
+          <Route element={<ProtectedRoutes isAuth={user.isAuth} />}>
+            <Route path="/product/upload" element={<UploadProductPage />} />
+            <Route path="/products/:productId" element={<DetailProductPage />} />
+            <Route path="/user/cart" element={<CartPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+          </Route>
+          {/* 로그인한 사람은 갈 수 없는 경로 */}
+          <Route element={<NotAuthRoutes isAuth={user.isAuth} />}>
+            <Route path="/login" element={<LoginPage />}></Route>
+            <Route path="/register" element={<RegisterPage />}></Route>
+          </Route>
         </Route>
-        {/* 로그인한 사람은 갈 수 없는 경로 */}
-        <Route element={<NotAuthRoutes isAuth={user.isAuth} />}>
-          <Route path="/login" element={<LoginPage />}></Route>
-          <Route path="/register" element={<RegisterPage />}></Route>
-        </Route>
-        <Route path="/products/:productid" element={<ProductDetail />} />
-      </Route>
-    </Routes>
+      </Routes>
+    </QueryClientProvider>
   );
 }
 

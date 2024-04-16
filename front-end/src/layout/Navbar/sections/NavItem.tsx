@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 
 import useLogout from "@/hooks/useLogout";
-import { userInfoState } from "@/store";
+import { userAuthData, userInfoState } from "@/store";
 
 const routes = [
   { to: "/login", name: "로그인", auth: false },
@@ -23,8 +23,10 @@ const routes = [
 const NavItem = () => {
   const navigate = useNavigate();
   const user = useRecoilValue(userInfoState);
+  const userData = useRecoilValue(userAuthData);
   const mobile = false;
   const isAuth = user.isAuth;
+  const cart = userData.cart;
 
   const { logout } = useLogout();
   const handleLogout = () => {
@@ -53,12 +55,14 @@ const NavItem = () => {
               className="relative py-2 text-center cursor-pointer text-purple-500"
               key={name}
             >
-              <Link to={to}>
-                {icon}
-                <span className="absolute top-0 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -right-3">
-                  {/* {cart?.length} */}
-                </span>
-              </Link>
+              {cart?.length > 0 && (
+                <Link to={to}>
+                  {icon}
+                  <span className="absolute top-0 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -right-3">
+                    {cart?.length}
+                  </span>
+                </Link>
+              )}
             </li>
           );
         } else {

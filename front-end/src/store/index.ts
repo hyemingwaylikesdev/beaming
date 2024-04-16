@@ -36,5 +36,11 @@ export const userAuthData = atom({
     email: "",
     role: 0,
     image: "",
+    cart: [{ id: "", quantity: 0, product: {} }],
   },
+});
+
+export const inputState = atom({
+  key: "inputState",
+  default: "",
 });

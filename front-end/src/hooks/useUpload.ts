@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import axiosInstance from "@/util/axios";
 
-interface FormData {
+export interface ProductsProps {
   title: string;
   description: string;
   price: number;
@@ -14,7 +14,7 @@ const useUpload = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const upload = async (data: FormData) => {
+  const upload = async (data: ProductsProps) => {
     setLoading(true);
     setError(null);
 
