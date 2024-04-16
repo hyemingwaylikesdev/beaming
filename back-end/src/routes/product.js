@@ -66,6 +66,12 @@ router.post("/image", auth, async (req, res, next) => {
  *         schema:
  *           type: string
  *         description: ID of the product to retrieve
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [array]
+ *         description: The type of the id parameter. If set to 'array', the id parameter should be a comma-separated list of IDs.
  *     responses:
  *       '200':
  *         description: Product details retrieved successfully
@@ -83,6 +89,7 @@ router.get("/:id", async (req, res, next) => {
     // productIds = ['32423423423', '345345345345345345', '345345345345345']
 
     let ids = productIds.split(",");
+    console.log(ids);
     productIds = ids.map((item) => {
       return item;
     });

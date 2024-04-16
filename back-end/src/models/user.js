@@ -1,7 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const bcrypt = require("bcrypt");
 
-const userSchema = new mongoose.Schema({
+const userSchema = mongoose.Schema({
   name: {
     type: String,
     maxLength: 50,
@@ -13,13 +13,21 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    minlength: [5, "Password must be at least 5 characters long."],
+    minLength: 5,
   },
   role: {
     type: Number,
     default: 0,
   },
   image: String,
+  cart: {
+    type: Array,
+    default: [],
+  },
+  history: {
+    type: Array,
+    default: [],
+  },
 });
 
 //! 비밀번호 salt로 암호화

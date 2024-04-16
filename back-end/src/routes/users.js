@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
+const { route } = require("./product");
 
 /**
  * @swagger
@@ -184,6 +185,46 @@ router.get("/auth", auth, async (req, res, next) => {
 router.post("/logout", auth, async (req, res, next) => {
   try {
     return res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/cart", auth, async (req, res, next) => {
+  try {
+    const userInfo = await User.findOne({ _id: req.user._id });
+    let duplicate = false;
+
+    userInfo?.cart.forEach((item) => {
+      if (item.id === req.query.productId) {
+        duplicate = true;
+      }
+    });
+    if (duplicate) {
+      const user = await User.findOneAndUpdate(
+        { _id: req.user._id, "cart.id": req.query.productId },
+        { $inc: { "cart.$.quantity": 1 } },
+        { new: true }
+      );
+
+      return res.status(201).json(user.cart);
+    } else {
+      const user = await User.findOneAndUpdate(
+        { _id: req.user._id },
+        {
+          $push: {
+            cart: {
+              id: req.body.productId,
+              quantity: 1,
+              date: Date.now(),
+            },
+          },
+        },
+        { new: true }
+      );
+
+      return res.status(201).send(user.cart);
+    }
   } catch (error) {
     next(error);
   }

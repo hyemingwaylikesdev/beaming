@@ -2,12 +2,13 @@ import ReactHtmlParser from "react-html-parser";
 import { useParams } from "react-router-dom";
 
 import ProductCarousel from "@/components/ProductCarousel";
+import useAddToCart from "@/hooks/useAddToCart";
 import UseProduceDetail from "@/hooks/useProduceDetail";
 import { category } from "@/util/filterData";
 
 const DetailProductPage = () => {
   const { productId } = useParams();
-
+  const { addToCart, loading } = useAddToCart();
   if (!productId) {
     return <div>상품 정보를 불러오는 중...</div>;
   }
@@ -30,7 +31,15 @@ const DetailProductPage = () => {
             </div>
 
             <div className="flex gap-x-4 mt-2">
-              <button className="px-4 py-2 mt-5 text-white bg-black rounded-md hover:bg-gray-500">
+              <button
+                className="px-4 py-2 mt-5 text-white bg-black rounded-md hover:bg-gray-500"
+                onClick={() => {
+                  if (data) {
+                    addToCart({ productId: data._id });
+                  }
+                }}
+                disabled={loading}
+              >
                 장바구니 담기
               </button>
               <button className="px-4 py-2 mt-5 text-white bg-black rounded-md hover:bg-gray-500">
